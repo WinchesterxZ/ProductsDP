@@ -1,3 +1,5 @@
+package com.example.designpatterntest.allProducts
+
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
@@ -11,15 +13,17 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
-import com.example.designpatterntest.OnDeleteClickListener
-import com.example.designpatterntest.OnFavoriteClickListener
+import com.example.designpatterntest.util.OnDeleteClickListener
+import com.example.designpatterntest.util.OnFavoriteClickListener
 import com.example.designpatterntest.R
 import com.example.designpatterntest.model.Product
 import com.example.designpatterntest.databinding.ProductItemBinding
 
-class ProductAdapter(private val onFavoriteClickListener: OnFavoriteClickListener?= null
-                     ,private val onDeleteClickListener: OnDeleteClickListener) :
-    ListAdapter<Product,ProductAdapter.ProductViewHolder>(ProductDiffCallback()){
+class ProductAdapter(
+    private val onFavoriteClickListener: OnFavoriteClickListener?= null
+    ,private val onDeleteClickListener: OnDeleteClickListener
+) :
+    ListAdapter<Product, ProductAdapter.ProductViewHolder>(ProductDiffCallback()){
 
     class ProductViewHolder(private val binding: ProductItemBinding):RecyclerView.ViewHolder(binding.root) {
         fun bind(product: Product, onFavoriteClickListener: OnFavoriteClickListener?= null, onDeleteClickListener: OnDeleteClickListener) {

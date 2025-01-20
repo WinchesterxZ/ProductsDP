@@ -1,4 +1,4 @@
-package com.example.designpatterntest
+package com.example.designpatterntest.util
 
 import com.example.designpatterntest.model.Product
 

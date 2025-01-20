@@ -1,4 +1,4 @@
-package com.example.designpatterntest
+package com.example.designpatterntest.util
 
 interface OnDeleteClickListener {
     fun onDeleteClickListener(id:Int)

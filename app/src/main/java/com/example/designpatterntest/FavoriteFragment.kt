@@ -1,6 +1,6 @@
 package com.example.designpatterntest
 
-import ProductAdapter
+import com.example.designpatterntest.allProducts.ProductAdapter
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.designpatterntest.local.ProductDatabase
 import com.example.designpatterntest.databinding.FragmentHomeBinding
+import com.example.designpatterntest.util.OnDeleteClickListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
