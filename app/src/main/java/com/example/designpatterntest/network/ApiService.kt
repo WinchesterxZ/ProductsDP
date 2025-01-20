@@ -1,4 +1,4 @@
-package com.example.designpatterntest.api
+package com.example.designpatterntest.network
 
 import com.example.designpatterntest.model.ProductResponse
 import retrofit2.Response

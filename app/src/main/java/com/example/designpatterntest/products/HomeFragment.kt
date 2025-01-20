@@ -1,15 +1,13 @@
-package com.example.designpatterntest.allProducts
+package com.example.designpatterntest.products
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
-import com.example.designpatterntest.api.RetrofitHelper
-import com.example.designpatterntest.local.ProductDatabase
+import com.example.designpatterntest.db.ProductDatabase
 import com.example.designpatterntest.model.Product
 import com.example.designpatterntest.databinding.FragmentHomeBinding
 import com.example.designpatterntest.util.OnDeleteClickListener
@@ -17,13 +15,12 @@ import com.example.designpatterntest.util.OnFavoriteClickListener
 import com.example.designpatterntest.util.makeSnackBar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
-class HomeFragment : Fragment(), AllProductsView, OnFavoriteClickListener, OnDeleteClickListener {
+class HomeFragment : Fragment(), ProductsView, OnFavoriteClickListener, OnDeleteClickListener {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-    private lateinit var presenter: AllProductsPresenter
+    private lateinit var presenter: ProductsPresenter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,7 +42,7 @@ class HomeFragment : Fragment(), AllProductsView, OnFavoriteClickListener, OnDel
     }
     private fun setupPresenter() {
         val productDao = ProductDatabase.getInstance(binding.root.context).productDao()
-        presenter = AllProductsPresenter(this, productDao)
+        presenter = ProductsPresenter(this, productDao)
         lifecycleScope.launch(Dispatchers.IO) {
             presenter.getFavoriteProducts()
         }

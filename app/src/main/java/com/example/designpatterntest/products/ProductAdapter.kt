@@ -1,4 +1,4 @@
-package com.example.designpatterntest.allProducts
+package com.example.designpatterntest.products
 
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater

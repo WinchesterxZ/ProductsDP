@@ -1,8 +1,8 @@
-package com.example.designpatterntest.allProducts
+package com.example.designpatterntest.products
 
 import com.example.designpatterntest.model.Product
 
-interface AllProductsView {
+interface ProductsView {
     fun showProducts(products: List<Product>)
     fun showMessage(str: String)
 }

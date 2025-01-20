@@ -1,14 +1,14 @@
-package com.example.designpatterntest.allProducts
+package com.example.designpatterntest.products
 
-import com.example.designpatterntest.api.RetrofitHelper
-import com.example.designpatterntest.local.ProductDao
+import com.example.designpatterntest.network.RetrofitHelper
+import com.example.designpatterntest.db.ProductDao
 import com.example.designpatterntest.model.Product
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 
-class AllProductsPresenter(
-    private val view: AllProductsView,
+class ProductsPresenter(
+    private val view: ProductsView,
     private val dao: ProductDao
 ) {
     suspend fun getFavoriteProducts() {
@@ -34,19 +34,23 @@ class AllProductsPresenter(
 
     suspend fun addProduct(product: Product) {
         val result = dao.insertProduct(product)
-        if (result > 0) {
-            view.showMessage("Product added to favorites")
-        } else {
-            view.showMessage("Something went wrong")
+        withContext(Dispatchers.Main) {
+            if (result > 0) {
+                view.showMessage("Product added to favorites")
+            } else {
+                view.showMessage("Something went wrong")
+            }
         }
     }
 
     suspend fun deleteProduct(id: Int) {
         val result = dao.deleteProduct(id)
-        if (result > 0) {
-            view.showMessage("Product removed from favorites")
-        } else {
-            view.showMessage("Something went wrong")
+        withContext(Dispatchers.Main) {
+            if (result > 0) {
+                view.showMessage("Product removed from favorites")
+            } else {
+                view.showMessage("Something went wrong")
+            }
         }
     }
 

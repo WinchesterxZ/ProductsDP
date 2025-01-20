@@ -1,4 +1,4 @@
-package com.example.designpatterntest.local
+package com.example.designpatterntest.db
 
 import android.content.Context
 import androidx.room.Database
