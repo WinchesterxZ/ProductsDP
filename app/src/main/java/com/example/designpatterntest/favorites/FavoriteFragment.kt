@@ -1,4 +1,4 @@
-package com.example.designpatterntest
+package com.example.designpatterntest.allFavorites
 
 import com.example.designpatterntest.allProducts.ProductAdapter
 import android.os.Bundle
