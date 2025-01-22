@@ -2,7 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.devtools.ksp")
-
+    id("androidx.navigation.safeargs.kotlin")
+    kotlin("plugin.serialization") version "2.0.21"
+    id("kotlin-parcelize")
 }
 
 android {
@@ -53,6 +55,7 @@ dependencies {
     implementation(libs.glide)
     implementation(libs.gson)
     implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.core.splashscreen)
     // See Add the KSP plugin to your project
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
@@ -60,6 +63,9 @@ dependencies {
     // Views/Fragments integration
     implementation(libs.androidx.navigation.fragment)
     implementation(libs.androidx.navigation.ui)
+    implementation(libs.shimmer)
+    implementation(libs.lottie)
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

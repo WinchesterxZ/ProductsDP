@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.appbar.MaterialToolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white"
+    android:elevation="4dp"
+    app:titleTextColor="@color/black"
+    app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light">
+    <ImageView
+        android:id="@+id/drawerIcon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/fav"
+    android:scaleType="centerCrop"
+    android:background="@drawable/circular_background"
+    android:layout_marginStart="16dp"
+    android:contentDescription="zz" />
+
+</com.google.android.material.appbar.MaterialToolbar>

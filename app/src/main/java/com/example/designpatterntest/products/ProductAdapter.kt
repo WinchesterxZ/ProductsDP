@@ -21,12 +21,16 @@ import com.example.designpatterntest.databinding.ProductItemBinding
 
 class ProductAdapter(
     private val onFavoriteClickListener: OnFavoriteClickListener?= null
-    ,private val onDeleteClickListener: OnDeleteClickListener
+    ,private val onDeleteClickListener: OnDeleteClickListener,
+    private val onItemClick : (Product) -> Unit
 ) :
     ListAdapter<Product, ProductAdapter.ProductViewHolder>(ProductDiffCallback()){
 
     class ProductViewHolder(private val binding: ProductItemBinding):RecyclerView.ViewHolder(binding.root) {
-        fun bind(product: Product, onFavoriteClickListener: OnFavoriteClickListener?= null, onDeleteClickListener: OnDeleteClickListener) {
+        fun bind(product: Product,
+                 onFavoriteClickListener: OnFavoriteClickListener?= null,
+                 onDeleteClickListener: OnDeleteClickListener,
+                 onItemClick : (Product) -> Unit){
             binding.productName.text = product.title
             binding.productPrice.text = "$${product.price}"
             binding.rateText.text = product.rating.toString()
@@ -73,14 +77,20 @@ class ProductAdapter(
                     onDeleteClickListener.onDeleteClickListener(product.id)
                 }
             }
+            binding.root.setOnClickListener {
+                onItemClick(product)
+            }
+
 
         }
+
+
     }
 
 
 
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
-        holder.bind(getItem(position),onFavoriteClickListener,onDeleteClickListener)
+        holder.bind(getItem(position),onFavoriteClickListener,onDeleteClickListener,onItemClick)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {

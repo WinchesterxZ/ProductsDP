@@ -56,7 +56,9 @@ class FavoriteFragment : Fragment(),FavoritesView,OnDeleteClickListener {
             binding.defaultImage.visibility = View.VISIBLE
             binding.defaultText.visibility = View.VISIBLE
         }
-        val adapter = ProductAdapter(onDeleteClickListener = this@FavoriteFragment)
+        val adapter = ProductAdapter(onDeleteClickListener = this@FavoriteFragment){
+            //
+        }
         adapter.submitList(products)
         binding.recyclerView.adapter = adapter
     }

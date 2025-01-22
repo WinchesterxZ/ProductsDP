@@ -12,7 +12,9 @@ import com.example.designpatterntest.model.Product
 import com.example.designpatterntest.databinding.FragmentHomeBinding
 import com.example.designpatterntest.util.OnDeleteClickListener
 import com.example.designpatterntest.util.OnFavoriteClickListener
+import com.example.designpatterntest.util.ShimmerAdapter
 import com.example.designpatterntest.util.makeSnackBar
+import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -21,6 +23,7 @@ class HomeFragment : Fragment(), ProductsView, OnFavoriteClickListener, OnDelete
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private lateinit var presenter: ProductsPresenter
+    private lateinit var shimmerAdapter: ShimmerAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,8 +40,21 @@ class HomeFragment : Fragment(), ProductsView, OnFavoriteClickListener, OnDelete
 
     }
     private fun setupUi(){
-        binding.recyclerViewProgressBar.visibility = View.VISIBLE
         binding.recyclerView.layoutManager = GridLayoutManager(binding.root.context, 2)
+        shimmerAdapter = ShimmerAdapter()
+        binding.recyclerViewShimmer.layoutManager = GridLayoutManager(binding.root.context, 2)
+        binding.recyclerViewShimmer.adapter = shimmerAdapter
+        showShimmer(true)
+    }
+    private fun showShimmer(show: Boolean) {
+        if (show) {
+            binding.shimmerFrameLayout.visibility = View.VISIBLE
+            binding.shimmerFrameLayout.startShimmer() // Start shimmer animation
+        } else {
+            binding.shimmerFrameLayout.visibility = View.GONE
+            binding.shimmerFrameLayout.stopShimmer() // Stop shimmer animation
+        }
+        shimmerAdapter.showShimmer(show) // Enable/disable shimmer in adapter
     }
     private fun setupPresenter() {
         val productDao = ProductDatabase.getInstance(binding.root.context).productDao()
@@ -51,14 +67,17 @@ class HomeFragment : Fragment(), ProductsView, OnFavoriteClickListener, OnDelete
 
 
     override fun showProducts(products: List<Product>) {
-        binding.recyclerViewProgressBar.visibility = View.GONE
-        val adapter = ProductAdapter(this@HomeFragment,this@HomeFragment)
+        showShimmer(false)
+        val adapter = ProductAdapter(this@HomeFragment,this@HomeFragment){ product->
+            val action = HomeFragmentDirections.actionHomeFragmentToProductDetailsFragment(product)
+            findNavController().navigate(action)
+        }
         adapter.submitList( products.filter { it.id !in listOf(6, 9, 19) })
         binding.recyclerView.adapter = adapter
     }
 
     override fun showMessage(str: String) {
-        binding.recyclerViewProgressBar.visibility = View.GONE
+        showShimmer(false)
         makeSnackBar(str,binding.root)
     }
 
