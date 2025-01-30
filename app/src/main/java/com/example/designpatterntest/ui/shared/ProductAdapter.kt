@@ -1,103 +1,73 @@
-package com.example.designpatterntest.ui.products
-
-import android.graphics.drawable.Drawable
+package com.example.designpatterntest.ui.shared
+import android.annotation.SuppressLint
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.Target
-import com.example.designpatterntest.ui.shared.listeners.OnDeleteClickListener
-import com.example.designpatterntest.ui.shared.listeners.OnFavoriteClickListener
+import coil.load
+import coil.transform.CircleCropTransformation
 import com.example.designpatterntest.R
 import com.example.designpatterntest.data.model.Product
 import com.example.designpatterntest.databinding.ProductItemBinding
+import com.example.designpatterntest.ui.shared.listeners.OnFavoriteClickListener
 
 class ProductAdapter(
-    private val onFavoriteClickListener: OnFavoriteClickListener?= null
-    , private val onDeleteClickListener: OnDeleteClickListener,
-    private val onItemClick : (Product) -> Unit
-) :
-    ListAdapter<Product, ProductAdapter.ProductViewHolder>(ProductDiffCallback()){
+    private val onFavoriteClickListener: OnFavoriteClickListener,
+    private val onItemClick: (Product) -> Unit
+) : ListAdapter<Product, ProductAdapter.ProductViewHolder>(ProductDiffCallback()) {
 
-    class ProductViewHolder(private val binding: ProductItemBinding):RecyclerView.ViewHolder(binding.root) {
-        fun bind(product: Product,
-                 onFavoriteClickListener: OnFavoriteClickListener?= null,
-                 onDeleteClickListener: OnDeleteClickListener,
-                 onItemClick : (Product) -> Unit){
-            binding.productName.text = product.title
-            binding.productPrice.text = "$${product.price}"
-            binding.rateText.text = product.rating.toString()
-            val favoriteBtn = binding.favoriteButton
-            val imageProgressBar = binding.imageProgressBar
-            imageProgressBar.visibility = View.VISIBLE
-            Glide.with(binding.root.context)
-                .load(product.thumbnail)
-                .apply(RequestOptions.centerCropTransform())
-                .listener(object : RequestListener<Drawable> {
-                    override fun onLoadFailed(
-                        e: GlideException?,
-                        model: Any?,
-                        target: Target<Drawable>,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        imageProgressBar.visibility = View.GONE
-                        return false
-                    }
+    inner class ProductViewHolder(private val binding: ProductItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-                    override fun onResourceReady(
-                        resource: Drawable,
-                        model: Any,
-                        target: Target<Drawable>?,
-                        dataSource: DataSource,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        imageProgressBar.visibility = View.GONE
-                        return false
-                    }
-                })
-                .into(binding.productImage)
-            favoriteBtn.setImageResource(
-                if (product.isFavorite) R.drawable.red_fav else R.drawable.fav_icon_border
-            )
-            favoriteBtn.setOnClickListener {
-                product.isFavorite = !product.isFavorite
-                favoriteBtn.setImageResource(
-                    if (product.isFavorite) R.drawable.red_fav else R.drawable.fav_icon_border
+        fun bind(product: Product) = binding.apply {
+            productName.text = product.title
+            productPrice.text = "$${product.price}"
+            //originalProductPrice.paintFlags = originalProductPrice.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            rateText.text = product.rating.toString()
+            productImage.load(product.thumbnail) {
+                crossfade(true) // Optional: Enable crossfade animation
+                transformations(CircleCropTransformation()) // Optional: Apply transformations
+                listener(
+                    onStart = { imageProgressBar.visibility = View.VISIBLE },
+                    onSuccess = { _, _ -> imageProgressBar.visibility = View.GONE },
+                    onError = { _, _ -> imageProgressBar.visibility = View.GONE }
                 )
-                if(product.isFavorite){
-                    onFavoriteClickListener?.onFavoriteClick(product)
-                }else{
-                    onDeleteClickListener.onDeleteClickListener(product.id)
-                }
-            }
-            binding.root.setOnClickListener {
-                onItemClick(product)
             }
 
-
+            // Set favorite icon and click listener
+            setFavoriteIcon(product)
+            favoriteButton.setOnClickListener {
+                toggleFavorite(product)
+            }
+            // Set item click listener
+            root.setOnClickListener { onItemClick(product) }
         }
 
+        private fun setFavoriteIcon(product: Product) {
+            binding.favoriteButton.setImageResource(
+                if (product.isFavorite) R.drawable.red_fav else R.drawable.fav_icon_border
+            )
+        }
 
-    }
+        private fun toggleFavorite(product: Product) {
+            onFavoriteClickListener.onFavoriteClick(product)
+        }
 
-
-
-    override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
-        holder.bind(getItem(position),onFavoriteClickListener,onDeleteClickListener,onItemClick)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
-        val binding = ProductItemBinding.inflate(LayoutInflater.from(parent.context),parent,false)
+        val binding = ProductItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ProductViewHolder(binding)
     }
-    class ProductDiffCallback: DiffUtil.ItemCallback<Product>() {
+
+    override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
+        holder.bind(getItem(position))
+    }
+
+    class ProductDiffCallback : DiffUtil.ItemCallback<Product>() {
         override fun areContentsTheSame(oldItem: Product, newItem: Product): Boolean {
             return oldItem == newItem
         }
@@ -105,8 +75,5 @@ class ProductAdapter(
         override fun areItemsTheSame(oldItem: Product, newItem: Product): Boolean {
             return oldItem.id == newItem.id
         }
-
     }
-
-
 }

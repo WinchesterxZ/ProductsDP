@@ -1,70 +1,69 @@
-package com.example.designpatterntest.favorites
+package com.example.designpatterntest.ui.favorites
 
 import android.database.sqlite.SQLiteException
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.designpatterntest.data.db.ProductDao
+import com.example.designpatterntest.data.model.Product
+import com.example.designpatterntest.data.repository.ProductsRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class FavoriteProductsViewModel(
-    private val productDao: ProductDao
-
+    private val productsRepository: ProductsRepository
 ): ViewModel() {
-    private val _viewState = MutableLiveData<FavoriteProductsViewState>()
-    val viewState: LiveData<FavoriteProductsViewState> = _viewState
+    private val _viewState = MutableStateFlow<FavoriteProductsViewState>(FavoriteProductsViewState.Loading)
+    val viewState =  _viewState.asStateFlow()
+
 
 
 
      fun getFavoriteProducts() {
-        _viewState.value = FavoriteProductsViewState.Loading
         viewModelScope.launch(Dispatchers.IO) {
+            Log.d("getFavoriteProducts", "feting Data: ")
             try {
-                val products = productDao.getFavoriteProducts()
-                withContext(Dispatchers.Main) {
-                    if (products.isEmpty()){
-                        _viewState.value = FavoriteProductsViewState.Empty
-                    }else{
-                        _viewState.value = FavoriteProductsViewState.Success(products)
-                    }
+                val products = productsRepository.getFavoriteProducts()
+                if (products.isEmpty()){
+                    _viewState.emit(FavoriteProductsViewState.Empty)
+                    Log.d("getFavoriteProducts", "emptyState View Model ")
+                }else{
+                    _viewState.emit(FavoriteProductsViewState.Success(products))
                 }
             } catch (e: Exception) {
                 val errorMessage = when (e) {
                     is SQLiteException -> "Database error. Please try again."
                     else -> "An unexpected error occurred: ${e.message}"
                 }
-                withContext(Dispatchers.Main){
-                    _viewState.value = FavoriteProductsViewState.LoadError(errorMessage)
-                }
+                _viewState.emit(FavoriteProductsViewState.LoadError(errorMessage))
+
             }
         }
     }
     fun deleteProduct(id: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val result = productDao.deleteProduct(id)
-                withContext(Dispatchers.Main) {
-                    if (result > 0) {
-                        _viewState.value = FavoriteProductsViewState.ProductRemoved("Product removed from favorites")
-                        getFavoriteProducts() // Refresh the list
-                    } else {
-                        _viewState.value = FavoriteProductsViewState.DeleteError("Failed to remove product")
-                    }
+                val result = productsRepository.deleteProduct(id)
+                if (result > 0) {
+                    Log.d("getFavoriteProducts", "Emitting ProductRemoved state")
+                    _viewState.emit( FavoriteProductsViewState.ProductRemoved("Product removed from favorites"))
+                    Log.d("getFavoriteProducts", "Success Delete")
+                } else {
+                    _viewState.emit(FavoriteProductsViewState.DeleteError("Failed to remove product"))
+
                 }
             } catch (e: Exception) {
                 val errorMessage = when (e) {
                     is SQLiteException -> "Database error. Please try again."
                     else -> "An unexpected error occurred: ${e.message}"
                 }
-                withContext(Dispatchers.Main) {
-                    _viewState.value = FavoriteProductsViewState.DeleteError(errorMessage)
-                }
+                _viewState.emit(FavoriteProductsViewState.DeleteError(errorMessage))
             }
         }
     }
-
+    fun toggleFavButton(product: Product){
+        product.isFavorite = !product.isFavorite
+    }
 
 }

@@ -1,4 +1,4 @@
-package com.example.designpatterntest.util
+package com.example.designpatterntest.ui.shared
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater

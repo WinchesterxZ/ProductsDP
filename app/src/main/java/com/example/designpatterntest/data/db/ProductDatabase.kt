@@ -1,12 +1,15 @@
-package com.example.designpatterntest.db
+package com.example.designpatterntest.data.db
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.designpatterntest.model.Product
+import androidx.room.TypeConverters
+import com.example.designpatterntest.data.model.Converters
+import com.example.designpatterntest.data.model.Product
 
 @Database(entities = [Product::class], version = 1, exportSchema = false)
+@TypeConverters(Converters::class)
 abstract class ProductDatabase: RoomDatabase() {
     abstract fun productDao(): ProductDao
     companion object {

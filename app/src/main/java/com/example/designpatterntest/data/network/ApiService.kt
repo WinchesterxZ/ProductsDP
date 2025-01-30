@@ -1,6 +1,6 @@
-package com.example.designpatterntest.network
+package com.example.designpatterntest.data.network
 
-import com.example.designpatterntest.model.ProductResponse
+import com.example.designpatterntest.data.model.ProductResponse
 import retrofit2.Response
 import retrofit2.http.GET
 

@@ -1,4 +1,4 @@
-package com.example.designpatterntest.util
+package com.example.designpatterntest.ui.shared.listeners
 
 import com.example.designpatterntest.data.model.Product
 

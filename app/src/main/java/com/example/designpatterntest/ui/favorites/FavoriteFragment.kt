@@ -1,24 +1,27 @@
-package com.example.designpatterntest.favorites
+package com.example.designpatterntest.ui.favorites
 
-import com.example.designpatterntest.products.ProductAdapter
+import android.annotation.SuppressLint
+import com.example.designpatterntest.ui.shared.ProductAdapter
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.designpatterntest.databinding.FragmentFavoriteBinding
-import com.example.designpatterntest.data.db.ProductDatabase
 import com.example.designpatterntest.data.model.Product
-import com.example.designpatterntest.util.OnDeleteClickListener
+import com.example.designpatterntest.ui.shared.listeners.OnFavoriteClickListener
 import com.example.designpatterntest.util.makeSnackBar
+import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class FavoriteFragment : Fragment(),OnDeleteClickListener {
+
+class FavoriteFragment : Fragment(), OnFavoriteClickListener {
     private var _binding: FragmentFavoriteBinding? = null
     private val binding get() = _binding!!
-    private lateinit var viewModel: FavoriteProductsViewModel
+    private val viewModel: FavoriteProductsViewModel by viewModel()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -30,7 +33,6 @@ class FavoriteFragment : Fragment(),OnDeleteClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupUi()
-        setupViewModel()
         viewModel.getFavoriteProducts()
         showFavoriteProducts()
 
@@ -42,23 +44,25 @@ class FavoriteFragment : Fragment(),OnDeleteClickListener {
         binding.recyclerViewProgressBar.visibility = View.VISIBLE
         binding.recyclerView.layoutManager = GridLayoutManager(binding.root.context, 2)
     }
-    private fun setupViewModel() {
-        val productDao = ProductDatabase.getInstance(binding.root.context).productDao()
-        val viewModelFactory = FavProductsViewModelFactory(productDao)
-        viewModel = ViewModelProvider(this, viewModelFactory)[FavoriteProductsViewModel::class.java]
-    }
+
 
     private fun showFavoriteProducts() {
-        viewModel.viewState.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is FavoriteProductsViewState.Loading -> showLoading()
-                is FavoriteProductsViewState.Success -> showProducts(state.products)
-                is FavoriteProductsViewState.Empty -> showEmptyState()
-                is FavoriteProductsViewState.ProductRemoved -> showSnackBar(state.message)
-                is FavoriteProductsViewState.LoadError -> showError(state.message)
-                is FavoriteProductsViewState.DeleteError -> showError(state.message)
-            }
+        lifecycleScope.launch {
+            viewModel.viewState.collect() { state ->
+                Log.d("getFavoriteProducts", "showFavoriteProducts: $state")
+                when (state) {
+                    is FavoriteProductsViewState.Loading -> showLoading()
+                    is FavoriteProductsViewState.Success -> showProducts(state.products)
+                    is FavoriteProductsViewState.Empty -> showEmptyState()
+                    is FavoriteProductsViewState.ProductRemoved -> {
+                        showSnackBar(state.message)
+                        viewModel.getFavoriteProducts()
+                    }
+                    is FavoriteProductsViewState.LoadError -> showError(state.message)
+                    is FavoriteProductsViewState.DeleteError -> showError(state.message)
+                }
 
+            }
         }
     }
 
@@ -71,7 +75,8 @@ class FavoriteFragment : Fragment(),OnDeleteClickListener {
         binding.recyclerViewProgressBar.visibility = View.GONE
         binding.defaultImage.visibility = View.GONE
         binding.defaultText.visibility = View.GONE
-        val adapter = ProductAdapter(onDeleteClickListener = this@FavoriteFragment) {}
+        val adapter = ProductAdapter(onFavoriteClickListener = this@FavoriteFragment) {}
+        Log.d("getFavoriteProducts", "showProducts: + ${products.size} ")
         adapter.submitList(products)
         binding.recyclerView.adapter = adapter
     }
@@ -80,10 +85,12 @@ class FavoriteFragment : Fragment(),OnDeleteClickListener {
         binding.recyclerViewProgressBar.visibility = View.GONE
         binding.defaultImage.visibility = View.VISIBLE
         binding.defaultText.visibility = View.VISIBLE
+        Log.d("getFavoriteProducts", "Empty called")
         (binding.recyclerView.adapter as? ProductAdapter)?.submitList(emptyList())
     }
 
     private fun showSnackBar(message: String) {
+        Log.d("getFavoriteProducts", "showSnackBar: $message")
         makeSnackBar(message, binding.recyclerView)
     }
 
@@ -92,17 +99,16 @@ class FavoriteFragment : Fragment(),OnDeleteClickListener {
         makeSnackBar(message, binding.recyclerView)
     }
 
-
-
-
-    override fun onDeleteClickListener(id: Int) {
-        viewModel.deleteProduct(id)
+    override fun onFavoriteClick(product: Product) {
+        viewModel.toggleFavButton(product)
+        viewModel.deleteProduct(product.id)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+
 
 
 }

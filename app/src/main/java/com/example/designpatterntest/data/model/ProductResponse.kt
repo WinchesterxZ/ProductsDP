@@ -1,4 +1,4 @@
-package com.example.designpatterntest.model
+package com.example.designpatterntest.data.model
 
 data class ProductResponse(
     val limit: Int,

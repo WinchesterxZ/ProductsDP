@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.example.designpatterntest.products.HomeFragment"
+        android:name="com.example.designpatterntest.ui.products.HomeFragment"
         android:label="fragment_home"
         tools:layout="@layout/fragment_home" >
         <action
@@ -16,16 +16,13 @@
     </fragment>
     <fragment
         android:id="@+id/favoriteFragment"
-        android:name="com.example.designpatterntest.favorites.FavoriteFragment"
+        android:name="com.example.designpatterntest.ui.favorites.FavoriteFragment"
         android:label="fragment_favorite"
         tools:layout="@layout/fragment_favorite" />
     <fragment
         android:id="@+id/productDetailsFragment"
-        android:name="com.example.designpatterntest.productsDetails.ProductDetailsFragment"
+        android:name="com.example.designpatterntest.ui.productsDetails.ProductDetailsFragment"
         android:label="fragment_product_details"
         tools:layout="@layout/fragment_product_details" >
-        <argument
-            android:name="product"
-            app:argType="com.example.designpatterntest.model.Product" />
     </fragment>
 </navigation>

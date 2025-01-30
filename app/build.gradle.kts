@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.designpatterntest"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -66,6 +66,11 @@ dependencies {
     implementation(libs.shimmer)
     implementation(libs.lottie)
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    implementation("io.coil-kt:coil:2.4.0") // Use the latest version
+    // Koin dependencies for Android
+    implementation("io.insert-koin:koin-android:3.4.3")
+    // Navigation Graph
+    implementation("io.insert-koin:koin-androidx-navigation:3.4.3")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -1,29 +1,28 @@
-package com.example.designpatterntest.products
+package com.example.designpatterntest.ui.products
 
+import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import com.example.designpatterntest.data.db.ProductDatabase
 import com.example.designpatterntest.data.model.Product
 import com.example.designpatterntest.databinding.FragmentHomeBinding
-import com.example.designpatterntest.util.OnDeleteClickListener
-import com.example.designpatterntest.util.OnFavoriteClickListener
-import com.example.designpatterntest.util.ShimmerAdapter
+import com.example.designpatterntest.ui.shared.ProductAdapter
+import com.example.designpatterntest.ui.shared.ShimmerAdapter
+import com.example.designpatterntest.ui.shared.listeners.OnFavoriteClickListener
 import com.example.designpatterntest.util.makeSnackBar
-import androidx.navigation.fragment.findNavController
-import com.example.designpatterntest.data.network.RetrofitHelper
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
+class HomeFragment : Fragment(), OnFavoriteClickListener {
 
-class HomeFragment : Fragment(), OnFavoriteClickListener, OnDeleteClickListener {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private lateinit var shimmerAdapter: ShimmerAdapter
-    private lateinit var viewModel: ProductsViewModel
+    private lateinit var productAdapter: ProductAdapter
+    private val viewModel: ProductsViewModel by activityViewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,84 +35,89 @@ class HomeFragment : Fragment(), OnFavoriteClickListener, OnDeleteClickListener 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupUi()
-        setupViewModel()
         viewModel.getProducts()
         showProducts()
     }
-    private fun setupUi(){
-        binding.recyclerView.layoutManager = GridLayoutManager(binding.root.context, 2)
+
+    private fun setupUi() {
+        binding.recyclerView.layoutManager = GridLayoutManager(binding.root.context, calculateSpanCount())
         shimmerAdapter = ShimmerAdapter()
-        binding.recyclerViewShimmer.layoutManager = GridLayoutManager(binding.root.context, 2)
+        binding.recyclerViewShimmer.layoutManager = GridLayoutManager(binding.root.context, calculateSpanCount())
         binding.recyclerViewShimmer.adapter = shimmerAdapter
     }
+    private fun calculateSpanCount(): Int {
+        val displayMetrics = resources.displayMetrics
+        val screenWidthDp = displayMetrics.widthPixels / displayMetrics.density
+        val columnWidth = 160 // Adjust based on your design
+        return maxOf(2, (screenWidthDp / columnWidth).toInt()) // At least 2 columns
+    }
+
+
     private fun showShimmer(show: Boolean) {
         if (show) {
             binding.shimmerFrameLayout.visibility = View.VISIBLE
-            binding.shimmerFrameLayout.startShimmer() // Start shimmer animation
+            binding.shimmerFrameLayout.startShimmer()
         } else {
             binding.shimmerFrameLayout.visibility = View.GONE
-            binding.shimmerFrameLayout.stopShimmer() // Stop shimmer animation
+            binding.shimmerFrameLayout.stopShimmer()
         }
-        shimmerAdapter.showShimmer(show) // Enable/disable shimmer in adapter
+        shimmerAdapter.showShimmer(show)
     }
-    private fun setupViewModel() {
-       val retrofit = RetrofitHelper.retrofitService
-        val productDao = ProductDatabase.getInstance(binding.root.context).productDao()
-        val viewModelFactory = ViewModelFactory(productDao,retrofit)
-        viewModel = ViewModelProvider(this, viewModelFactory)[ProductsViewModel::class.java]
-    }
-
 
     private fun showProducts() {
         viewModel.viewState.observe(viewLifecycleOwner) { state ->
             when (state) {
-                is ProductsViewState.Loading -> {
-                    showShimmer(true) // Show shimmer loading effect
-                }
+                is ProductsViewState.Loading -> showShimmer(true)
                 is ProductsViewState.Success -> {
-                    showShimmer(false) // Hide shimmer loading effect
-                    val adapter = ProductAdapter(this@HomeFragment, this@HomeFragment) { product ->
-                        val action = HomeFragmentDirections.actionHomeFragmentToProductDetailsFragment(product)
-                        findNavController().navigate(action)
-                    }
-                    adapter.submitList(state.products)
-                    binding.recyclerView.adapter = adapter
+                    handleSuccessState(state)
                 }
-                is ProductsViewState.ProductAdded -> {
-                    makeSnackBar(state.message, binding.recyclerView)
-                }
-                is ProductsViewState.ProductRemoved -> {
-                    makeSnackBar(state.message, binding.recyclerView)
-                }
-                is ProductsViewState.LoadError -> {
-                    showShimmer(false)
-                    makeSnackBar(state.message, binding.recyclerView)
-                }
-                is ProductsViewState.DeleteError -> {
-                    makeSnackBar(state.message, binding.recyclerView)
-                }
-                is ProductsViewState.AddToFavoriteError -> {
-                    makeSnackBar(state.message, binding.recyclerView)
-                }
+                is ProductsViewState.Message -> handleMessageState(state)
+                is ProductsViewState.Error -> handleErrorState(state)
             }
         }
-
     }
 
+    private fun handleSuccessState(state: ProductsViewState.Success) {
+        showShimmer(false)
+        productAdapter = ProductAdapter(this@HomeFragment) { product ->
+            viewModel.setProduct(product)
+            findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToProductDetailsFragment())
+        }
+        productAdapter.submitList(state.products)
+        binding.recyclerView.adapter = productAdapter
+    }
 
+    private fun handleMessageState(state: ProductsViewState.Message) {
+        when (state.action) {
+            ProductsViewState.Action.ADDED_TO_FAVORITES -> makeSnackBar(state.message, binding.recyclerView)
+            ProductsViewState.Action.REMOVED_FROM_FAVORITES -> makeSnackBar(state.message, binding.recyclerView)
+        }
+    }
 
+    private fun handleErrorState(state: ProductsViewState.Error) {
+        when (state.type) {
+            ProductsViewState.ErrorType.LoadError -> {
+                showShimmer(false)
+                makeSnackBar(state.message, binding.recyclerView)
+            }
+            ProductsViewState.ErrorType.AddToFavoriteError -> makeSnackBar(state.message, binding.recyclerView)
+            ProductsViewState.ErrorType.DeleteError -> makeSnackBar(state.message, binding.recyclerView)
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
     override fun onFavoriteClick(product: Product) {
-        viewModel.addProduct(product)
+        viewModel.toggleFavButton(product)
+        if (product.isFavorite) {
+            viewModel.addProduct(product)
+        } else {
+            viewModel.deleteProduct(product.id)
+        }
+        productAdapter.notifyDataSetChanged()
     }
-
-    override fun onDeleteClickListener(id: Int) {
-        viewModel.deleteProduct(id)
-    }
-
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
-
 }

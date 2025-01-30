@@ -1,4 +1,4 @@
-package com.example.designpatterntest
+package com.example.designpatterntest.ui
 
 import android.animation.Animator
 import android.annotation.SuppressLint
@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import com.example.designpatterntest.MainActivity
 
 import com.example.designpatterntest.databinding.ActivitySplashBinding
 

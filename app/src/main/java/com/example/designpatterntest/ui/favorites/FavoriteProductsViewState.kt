@@ -1,4 +1,4 @@
-package com.example.designpatterntest.favorites
+package com.example.designpatterntest.ui.favorites
 
 import com.example.designpatterntest.data.model.Product
 

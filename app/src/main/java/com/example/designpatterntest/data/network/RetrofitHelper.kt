@@ -1,4 +1,4 @@
-package com.example.designpatterntest.network
+package com.example.designpatterntest.data.network
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

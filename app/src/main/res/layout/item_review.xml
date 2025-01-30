@@ -1,0 +1,70 @@
+<!-- item_review.xml -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="16dp">
+
+    <!-- Reviewer Name -->
+    <TextView
+        android:id="@+id/reviewerName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        tools:text="Sophia Brown"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginEnd="8dp" />
+    <TextView
+        android:id="@+id/reviewerEmail"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        tools:text="maya.reed@x.dummyjson.com"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/reviewDate"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginEnd="8dp" />
+
+    <!-- Rating Bar -->
+    <RatingBar
+        android:id="@+id/ratingBar"
+        style="?android:attr/ratingBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:isIndicator="true"
+        android:numStars="5"
+        android:rating="5"
+        android:stepSize="1"
+        app:layout_constraintBottom_toTopOf="@+id/reviewerEmail"
+        app:layout_constraintStart_toEndOf="@+id/reviewDate"
+        app:layout_constraintTop_toBottomOf="@+id/reviewerName"
+        app:layout_constraintVertical_bias="0.8"
+        android:layout_marginStart="15dp"/>
+
+    <!-- Review Comment -->
+    <TextView
+        android:id="@+id/reviewComment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Great value for money!"
+        android:textSize="14sp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/reviewerEmail"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Review Date -->
+    <TextView
+        android:id="@+id/reviewDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="2024-05-23"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="13sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/reviewerName" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
