@@ -1,4 +1,4 @@
-package com.example.designpatterntest.products
+package com.example.designpatterntest.ui.products
 
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
@@ -13,15 +13,15 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
-import com.example.designpatterntest.util.OnDeleteClickListener
-import com.example.designpatterntest.util.OnFavoriteClickListener
+import com.example.designpatterntest.ui.shared.listeners.OnDeleteClickListener
+import com.example.designpatterntest.ui.shared.listeners.OnFavoriteClickListener
 import com.example.designpatterntest.R
-import com.example.designpatterntest.model.Product
+import com.example.designpatterntest.data.model.Product
 import com.example.designpatterntest.databinding.ProductItemBinding
 
 class ProductAdapter(
     private val onFavoriteClickListener: OnFavoriteClickListener?= null
-    ,private val onDeleteClickListener: OnDeleteClickListener,
+    , private val onDeleteClickListener: OnDeleteClickListener,
     private val onItemClick : (Product) -> Unit
 ) :
     ListAdapter<Product, ProductAdapter.ProductViewHolder>(ProductDiffCallback()){
